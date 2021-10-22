@@ -41,3 +41,7 @@ class Response():
 	def __str__(self):
 		formatted_str = f"RESPONSE:\n Version = {self.version}\n Code = {self.code}\n Payload size = {self.payload_size}\n Payload = {self.payload}\n"
 		return formatted_str
+
+
+
+

@@ -1,8 +1,19 @@
 #pragma once
 
+/* Includes */
 #include <exception>
 #include <string>
 
+
+
+/* Error Codes */
+
+#define CLIENT_GENERAL_ERROR_EXIT_CODE		(1)
+
+
+
+
+/* Module Exceptions */
 
 class ServerGeneralError : public std::exception
 {

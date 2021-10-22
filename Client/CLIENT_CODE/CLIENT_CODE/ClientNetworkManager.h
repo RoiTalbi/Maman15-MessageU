@@ -12,6 +12,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/exception/all.hpp>
 
+#include "Logger.h"
 #include "ServerRequests.h"
 #include "ServerResponses.h"
 #include "server_codes.h"
@@ -48,8 +49,12 @@ class ClientNetworkManager : public ClientIOContext
 
 public:
 
-	ClientNetworkManager(const std::string& ip, const std::string& port) : 
+	ClientNetworkManager() : 
 		_client_socket(_io_context)
+	{
+	}
+
+	void connect_to_server(const std::string& ip, const std::string& port)
 	{
 		try
 		{
@@ -59,9 +64,7 @@ public:
 		catch (const boost::exception& ex)
 		{
 			// TODO - Handle better 
-
-			std::cerr << "Exception: " << boost::diagnostic_information(ex) << "\n";
-			throw ClientNetworkError("Network Error!!");
+			throw ClientNetworkError("Network Error! " + diagnostic_information(ex));
 		}
 	}
 
