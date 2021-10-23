@@ -9,20 +9,19 @@
 
 
 
-#define MAIN_MENU_MESSAGE		   "MessageU client at your service\
+#define MAIN_MENU_MESSAGE		   "MessageU client at your service\n\
 10) Register\n\
-20) Request for clients list\n		      \
-30) Request for public key\n			  \
-40) Request for waiting messages\n        \
-50) Send a text message\n				  \
-51) Send a request for symmetric key\n    \
-52) Send your symmetric key\n			  \
-0) Exit client\n ? "
+20) Request for clients list\n\
+30) Request for public key\n\
+40) Request for waiting messages\n\
+50) Send a text message\n\
+51) Send a request for symmetric key\n\
+52) Send your symmetric key\n\
+0) Exit client\n?"
 
 
 
 #define MESSAGE_INVALID_CHOICE		("Invalid choice. Please enter choice again\n")
-
 #define MESSAGE_SERVER_ERROR		("Server responded with an error: ")
 
 
@@ -55,17 +54,26 @@ public:
 
 	}
 
+	string get_user_input(const string& instruction_message)
+	{
+		string input = "";
+
+		cout << instruction_message << endl;
+		cin >> input;
+
+		return input;
+	}
+
+
 	void run_menu(std::map <MenuAction, std::function<void()>>& action_handlers_map)
 	{
 		string user_choice= "";
 		MenuAction menu_choice = ACTION_EXIT_MENU;
 
-		// Scan for user's choice
-		cin >> user_choice;
-
 		while (true)
 		{
 			// Scan for user's choice
+			cout << MAIN_MENU_MESSAGE << endl;
 			cin >> user_choice;
 
 			try 
@@ -98,6 +106,11 @@ public:
 			{
 				cout << MESSAGE_SERVER_ERROR << ex.what() << endl;
 			}
+			catch (const ClientError& ex)
+			{
+				Logger::LOG_ERROR(ex.what());
+			}
+			
 			
 		}
 	}

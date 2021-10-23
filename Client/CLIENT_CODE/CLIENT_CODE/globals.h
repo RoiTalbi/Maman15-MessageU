@@ -7,6 +7,6 @@
 #define  CLIENT_NAME_SIZE				(255)
 
 #define  PUBLIC_KEY_SIZE				(160)
-
+#define  PRIVATE_KEY_SIZE				(160)
 
 #define SERVER_VERSION					(1)

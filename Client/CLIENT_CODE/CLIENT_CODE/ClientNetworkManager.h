@@ -64,12 +64,12 @@ public:
 		catch (const boost::exception& ex)
 		{
 			// TODO - Handle better 
-			throw ClientNetworkError("Network Error! " + diagnostic_information(ex));
+			throw NetworkError("Network Error! " + diagnostic_information(ex));
 		}
 	}
 
 
-	void send_request_register(std::string name,
+	void send_request_register(const std::string& name,
 							   uint8_t public_key[PUBLIC_KEY_SIZE],
 							   boost::uuids::uuid* received_client_id)
 	{
@@ -136,7 +136,7 @@ private:
 
 			// TODO - REMOVE
 			std::cerr << "Exception: " << boost::diagnostic_information(ex) << "\n";
-			throw ClientNetworkError("Network Error has occurred!");
+			throw NetworkError("Network Error has occurred!");
 		}
 		catch (const std::bad_alloc& ex)
 		{
@@ -145,7 +145,7 @@ private:
 
 			// TODO - REMOVE
 			std::cerr << "Exception: " << ex.what() << "\n";
-			throw ClientNetworkError("couldn't allocate enough memory to process network request");
+			throw NetworkError("couldn't allocate enough memory to process network request");
 		}
 
 	}

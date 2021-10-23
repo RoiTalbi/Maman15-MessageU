@@ -9,51 +9,24 @@
 /* Error Codes */
 
 #define CLIENT_GENERAL_ERROR_EXIT_CODE		(1)
-
+#define CLIENT_NETWORK_ERROR_EXIT_CODE		(2)
 
 
 
 /* Module Exceptions */
 
-class ServerGeneralError : public std::exception
+
+
+class ClientError : public std::exception
 {
 public:
+	ClientError() {};
 
-	ServerGeneralError(const char* message) : _msg(message) {}
+	ClientError(const char* message) : _msg(message) {}
 
-	ServerGeneralError(const std::string& message) : _msg(message) {}
+	ClientError(const std::string& message) : _msg(message) {}
 
-	virtual ~ServerGeneralError() noexcept {}
-
-
-	virtual const char* what() const 
-	{
-		return _msg.c_str();
-	}
-
-protected:
-
-	std::string _msg;
-};
-
-
-
-
-
-class ClientNetworkError : public std::exception
-{
-public:
-	/** Constructor (C strings).
-	 *  @param message C-style string error message.
-	 *                 The string contents are copied upon construction.
-	 *                 Hence, responsibility for deleting the char* lies
-	 *                 with the caller.
-	 */
-	ClientNetworkError(const char* message) : _msg(message) {}
-
-	ClientNetworkError(const std::string& message) : _msg(message) {}
-
-	virtual ~ClientNetworkError() noexcept {}
+	virtual ~ClientError() noexcept {}
 
 
 	virtual const char* what() const
@@ -61,7 +34,33 @@ public:
 		return _msg.c_str();
 	}
 
-protected:
-
 	std::string _msg;
+};
+
+
+
+class ServerGeneralError : public ClientError
+{
+public:
+
+	ServerGeneralError(const char* message) : ClientError(message) {}
+
+	ServerGeneralError(const std::string& message) : ClientError(message) {}
+
+	virtual ~ServerGeneralError() noexcept {}
+
+};
+
+
+
+class NetworkError : public ClientError
+{
+public:
+
+	NetworkError(const char* message) : ClientError(message) {}
+
+	NetworkError(const std::string& message) : ClientError(message) {}
+
+	virtual ~NetworkError() noexcept {}
+
 };
