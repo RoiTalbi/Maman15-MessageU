@@ -2,7 +2,7 @@
 # Imports
 # ----------------------------------------------------------------
 import struct
-
+import uuid
 
 
 # ----------------------------------------------------------------
@@ -25,8 +25,8 @@ A simple Stracture to hold request data
 """
 class Request():
 
-    def init_request(self, client_id, version, code, payload_size, payload):
-        self.client_id = client_id
+    def init_request(self, client_id_raw, version, code, payload_size, payload):
+        self.client_id = uuid.UUID(bytes=client_id_raw) 
         self.version = version
         self.code = code
         self.payload_size = payload_size

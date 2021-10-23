@@ -9,7 +9,7 @@
 
 
 
-#define MAIN_MENU_MESSAGE		   "MessageU client at your service\n\
+#define MAIN_MENU_MESSAGE		   "\nMessageU client at your service\n\
 10) Register\n\
 20) Request for clients list\n\
 30) Request for public key\n\

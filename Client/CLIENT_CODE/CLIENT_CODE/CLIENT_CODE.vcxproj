@@ -171,6 +171,7 @@
     <ClInclude Include="globals.h" />
     <ClInclude Include="ClientNetworkManager.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="OtherClient.h" />
     <ClInclude Include="server_codes.h" />
     <ClInclude Include="ServerRequests.h" />
     <ClInclude Include="ServerResponses.h" />

@@ -24,6 +24,8 @@
 #include "ClientMenu.h"
 #include "Errors.h"
 #include "globals.h"
+#include "OtherClient.h"
+
 
 /* Constants and Macros  */
 
@@ -39,19 +41,15 @@ using namespace std;
 using namespace boost::uuids;
 using namespace CryptoPP;
 
-struct ClientInfo
-{
-	char name[CLIENT_NAME_SIZE];
-	char client_id[CLIENT_ID_PACKED_STR_LEN];
-	char client_private_key_b64[CLIENT_KEY_BASE64_SIZE];
-};
+
+
 
 
 class ClientManager
 {
 
 public:
-	ClientManager() : _is_registered(false), _public_key{0} , _private_key{0}
+	ClientManager() : _network_manager(_client_id), _is_registered(false), _public_key{0} , _private_key{0}
 	{
 		string line;
 
@@ -80,6 +78,7 @@ public:
 		/* Check if info file already exists (client is registered) . Parse that file if exists */
 		ifstream client_info_file(CLIENT_INFO_FILE_NAME);
 		string uuid_str = "";
+		string tmp = "";
 		string private_key_b64 = "";
 
 		if (client_info_file.is_open())
@@ -87,7 +86,12 @@ public:
 			_is_registered = true;
 			getline(client_info_file, _client_name);
 			getline(client_info_file, uuid_str);
-			getline(client_info_file, private_key_b64);
+
+			// Read the encoded private key
+			while (getline(client_info_file, tmp)){
+				private_key_b64 += tmp;
+			}
+
 
 			string private_key_str = Base64Wrapper::decode(private_key_b64);
 			if ((private_key_str.size() != PRIVATE_KEY_SIZE) || (uuid_str.size() != CLIENT_ID_PACKED_STR_LEN))
@@ -162,7 +166,23 @@ private:
 
 	void _get_clients_list()
 	{
-		cout << "Clients list !!!!" << endl;
+		std::vector<OtherClient*> other_clients;
+
+		_network_manager.send_request_get_clients_list(other_clients);
+
+		cout << "------- Clients list -------" << endl;
+		for (auto client : other_clients)
+		{
+			cout << "Client Name: " << client->name << "\t ID: " << Utils::raw_bytes_to_uuid_str(client->client_id) << endl;	
+		}
+		cout << "----------------------------" << endl;
+
+
+		/* Release all allocated clients memory */
+		for (auto client : other_clients)
+		{
+			delete client;
+		}
 	}
 
 

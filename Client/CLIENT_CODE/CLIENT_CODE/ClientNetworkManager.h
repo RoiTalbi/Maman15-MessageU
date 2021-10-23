@@ -7,16 +7,21 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 
 #include <boost/asio.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/exception/all.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "Logger.h"
 #include "ServerRequests.h"
 #include "ServerResponses.h"
 #include "server_codes.h"
 #include "Errors.h"
+#include "OtherClient.h"
+
 
 /* Constants and Macros */
 
@@ -26,7 +31,7 @@
 // TODO - MOVE TO CPP FILE!!
 
 using boost::asio::ip::tcp;
-
+using boost::uuids::uuid;
 
 
 
@@ -49,8 +54,9 @@ class ClientNetworkManager : public ClientIOContext
 
 public:
 
-	ClientNetworkManager() : 
-		_client_socket(_io_context)
+	ClientNetworkManager(uuid& client_id) : 
+		_client_socket(_io_context),
+		_client_id(client_id)
 	{
 	}
 
@@ -67,6 +73,8 @@ public:
 			throw NetworkError("Network Error! " + diagnostic_information(ex));
 		}
 	}
+
+
 
 
 	void send_request_register(const std::string& name,
@@ -93,6 +101,34 @@ public:
 		else
 		{
 			memcpy(received_client_id->data, response.payload, CLIENT_ID_SIZE_BYTES);
+		}
+	}
+
+	void send_request_get_clients_list(std::vector<OtherClient*>& other_clients)
+	{
+		/* Assemble request for client register . send it and get response */
+		ServerResponse response;
+		ServerRequest request(REQUEST_CODE_GET_CLIENTS_LIST, 0, _client_id.data);
+
+		_process_request_and_response(&request, &response);
+
+		if (response.code == SERVER_ERROR_CODE)
+		{
+			throw ServerGeneralError("Server General Error");
+		}
+
+		/* Parse response payload -> Other clients list */
+		size_t other_clients_count = (response.payload_size / sizeof(OtherClient));
+		OtherClient* other_client = NULL;
+
+		for (size_t i = 0; i < other_clients_count; i++)
+		{
+			/*Allocate memory for the next client info. copy it's information from response and push
+			it to result clients vector */
+			other_client = new OtherClient();
+			memcpy(other_client, &response.payload[i * sizeof(OtherClient)], sizeof(OtherClient));
+
+			other_clients.push_back(other_client);
 		}
 	}
 
@@ -151,6 +187,7 @@ private:
 	}
 
 
+	uuid& _client_id;
 	tcp::socket _client_socket;
 
 };

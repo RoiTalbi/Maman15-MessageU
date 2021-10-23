@@ -22,6 +22,10 @@ from server_codes import *
 REQUEST_REGISTER_PAYLOAD_FORMAT = '<255s160s'
 
 
+
+RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT = '<16s255s'
+
+
 # ----------------------------------------------------------------
 # Classes
 # ----------------------------------------------------------------
@@ -93,8 +97,34 @@ class Server():
         for c in Server._clients:
             print (str(c))
 
+
+
     def _request_get_clients_list(request):
-        pass
+
+        other_clients = Server._clients[:]
+
+        # find requesting client by it's id and remove it from other clients list
+        for client in other_clients:
+            if request.client_id == client.get_id():
+                print("Removing requesting client !!" + str (client))
+                other_clients.remove(client)
+                break
+
+        # Assamble response payload (other clinets list)
+        packed_clients_list = b''
+
+        for client in other_clients:
+            client_terminated_name = client.get_name() + '\x00' * (CLIENT_NAME_SIZE - len(client.get_name()))
+            client_terminated_name = client_terminated_name.encode('utf-8')
+
+            packed_clients_list += struct.pack(RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT, 
+             client.get_id().bytes, client_terminated_name)
+
+        # Create response and send it
+        response = Response(SERVER_VERSION, RESPONSE_CODE_GET_CLIENTS_LIST, len(packed_clients_list) , packed_clients_list)
+        return response
+
+
 
     def _request_get_client_public_key(request):
         pass

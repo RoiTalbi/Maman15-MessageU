@@ -52,7 +52,6 @@ public:
 /* ----------- All other server requests structures  ----------- */
 
 
-
 #pragma pack(1) 
 struct RequestRegister
 {
