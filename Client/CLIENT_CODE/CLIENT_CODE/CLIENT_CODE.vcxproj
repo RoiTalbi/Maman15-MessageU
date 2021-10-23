@@ -91,13 +91,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\OPU\DefensiveProgramming\cryptopp850;D:\BOOST_LIBRARY\boost_1_77_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\BOOST_LIBRARY\boost_1_77_0;D:\OPU\DefensiveProgramming\Mamans\CRYPTOPP86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\BOOST_LIBRARY\boost_1_77_0\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>D:\OPU\DefensiveProgramming\cryptopp850\Win32\Output\Debug;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\OPU\DefensiveProgramming\Mamans\CRYPTOPP86\Win32\Output\Debug\cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -173,6 +174,7 @@
     <ClInclude Include="server_codes.h" />
     <ClInclude Include="ServerRequests.h" />
     <ClInclude Include="ServerResponses.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

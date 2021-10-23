@@ -18,6 +18,7 @@
 
 #include "cryptopp_wrapper/Base64Wrapper.h"
 
+#include "Utils.h"
 #include "Logger.h"
 #include "ClientNetworkManager.h"
 #include "ClientMenu.h"
@@ -29,7 +30,7 @@
 #define		CLIENT_INFO_FILE_NAME		("me.info")
 #define		SERVER_INFO_FILE_NAME		("server.info")
 
-#define		CLIENT_ID_STR_LEN			(33)
+#define		CLIENT_ID_PACKED_STR_LEN	(32)
 #define		CLIENT_KEY_BASE64_SIZE		(300)
 
 
@@ -41,7 +42,7 @@ using namespace CryptoPP;
 struct ClientInfo
 {
 	char name[CLIENT_NAME_SIZE];
-	char client_id[CLIENT_ID_STR_LEN];
+	char client_id[CLIENT_ID_PACKED_STR_LEN];
 	char client_private_key_b64[CLIENT_KEY_BASE64_SIZE];
 };
 
@@ -89,16 +90,17 @@ public:
 			getline(client_info_file, private_key_b64);
 
 			string private_key_str = Base64Wrapper::decode(private_key_b64);
-			if ((private_key_str.size() != PRIVATE_KEY_SIZE) || (uuid_str.size() != CLIENT_ID_STR_LEN))
+			if ((private_key_str.size() != PRIVATE_KEY_SIZE) || (uuid_str.size() != CLIENT_ID_PACKED_STR_LEN))
 			{
 				Logger::LOG_CRITICAL_ERROR("Invalid me.info file");
 				exit(CLIENT_GENERAL_ERROR_EXIT_CODE);
 			}
 
-			_client_id = boost::lexical_cast<uuid>(uuid_str);
+			_client_id = Utils::str_to_uuid(uuid_str);
 			memcpy(_private_key, private_key_str.data(), PRIVATE_KEY_SIZE);
 		}
 	}
+
 
 	void run_client()
 	{
@@ -146,19 +148,16 @@ private:
 		Logger::LOG_INFO("Registering client");
 		_network_manager.send_request_register(user_name, _public_key, &_client_id);
 
-		string uuid_str = boost::lexical_cast<std::string>(_client_id);
-		uuid_str.replace(uuid_str.begin(), uuid_str.end(), "-", "");
-
+		string uuid_str = Utils::uuid_to_packed_str(_client_id);
 		Logger::LOG_INFO("Client registered . UUID=" , uuid_str);
 
 		/* Save registration info to client info file */
 		ofstream client_info_file(CLIENT_INFO_FILE_NAME);
 		client_info_file << user_name << endl;
 		client_info_file << uuid_str << endl;
-		//TODO - convert to b64
+		client_info_file << Base64Wrapper::encode(string((char*)_private_key, PRIVATE_KEY_SIZE)) << endl;
 
 		_is_registered = true;
-
 	}
 
 	void _get_clients_list()
