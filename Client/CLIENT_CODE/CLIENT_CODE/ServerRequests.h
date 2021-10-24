@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include "globals.h"
-
+#include "Message.h"
 
 
 
@@ -66,3 +66,24 @@ struct RequestRegister
 };
 
 
+#pragma pack(1)
+struct RequestSendMessage
+{
+	RequestSendMessage(uint32_t content_size,
+					   uint8_t dest_client_id[CLIENT_ID_SIZE_BYTES],
+					   MessageType type = MessageType::REGULAR_MESSAGE)
+	{
+		this->type = type;
+		this->content_size = content_size;
+		memcpy(this->dest_client_id, dest_client_id, CLIENT_ID_SIZE_BYTES);
+	}
+
+	void set_message_type(MessageType type)
+	{
+		this->type = type;
+	}
+
+	uint8_t dest_client_id[CLIENT_ID_SIZE_BYTES];
+	MessageType type;
+	uint32_t content_size;
+};

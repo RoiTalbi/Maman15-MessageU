@@ -19,12 +19,19 @@ from server_codes import *
 # Globals
 # ----------------------------------------------------------------
 
+
+CLIENT_MESSAGE_HEADERS_SIZE = 21
+
+
+
 REQUEST_REGISTER_PAYLOAD_FORMAT = '<255s160s'
+REQUEST_SEND_MESSAGE_HEADERS_FORMAT = '<16sBI'
+
 
 
 RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT = '<16s255s'
 RESPONSE_CLIENT_PUBLIC_KEY_FORMAT = "<16s160s"
-
+RESPONSE_MESSAGE_SENT_FORMAT = "<16sI"
 
 
 # ----------------------------------------------------------------
@@ -106,6 +113,8 @@ class Server():
             if client_id == client.get_id():
                 return client
 
+        return None
+
 
 
     def _request_get_clients_list(request):
@@ -134,8 +143,6 @@ class Server():
 
     def _request_get_client_public_key(request):
 
-        print("REQUEST===>" + str(request))
-
         # find client requsted public key
         requested_client_id = uuid.UUID(bytes=request.payload)
         client = Server._find_client_by_id(Server._clients, requested_client_id)
@@ -145,14 +152,44 @@ class Server():
         response_payload = struct.pack(RESPONSE_CLIENT_PUBLIC_KEY_FORMAT, client.get_id().bytes, client.get_public_key())
         response = Response(SERVER_VERSION, RESPONSE_CODE_GET_CLIENT_PUBLIC_KEY, len(response_payload) , response_payload)
 
-
         print("RESPONSE===>" + str(response))
 
         return response
 
 
     def _request_send_message(request):
-        pass
+
+        content = ''
+        # prase request payload (message headers)
+        (dest_client_id, msg_type, content_size) = struct.unpack(REQUEST_SEND_MESSAGE_HEADERS_FORMAT, \
+         request.payload[:CLIENT_MESSAGE_HEADERS_SIZE]) 
+
+
+        print (f"DEST ID= {dest_client_id}  | TYPE= {msg_type} | SIZE= {content_size}")
+
+
+        if content_size > 0:
+            content = request.payload[CLIENT_MESSAGE_HEADERS_SIZE:].decode('utf-8')
+
+        print("Content===> " + content)
+
+
+        dest_client = Server._find_client_by_id(Server._clients, uuid.UUID(bytes=dest_client_id))
+
+        if not dest_client:
+            print ("Client id not found!!!!!!!!!!!!")
+            return Server._general_error_response
+
+        # TODO !!!!! store that message in messages manager (get read message ID)
+        message_id = 7789
+
+
+        # build respone
+        response_payload = struct.pack(RESPONSE_MESSAGE_SENT_FORMAT, dest_client_id, message_id)        
+        response = Response(SERVER_VERSION, RESPONSE_CODE_SEND_MESSAGE, len(response_payload) , response_payload)
+        
+        return response
+        
 
     def _request_get_pending_messages(request):
         pass

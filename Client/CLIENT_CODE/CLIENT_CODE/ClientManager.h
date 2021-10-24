@@ -143,8 +143,8 @@ private:
 		{
 			{ACTION_REGISTER, std::bind(&ClientManager::_request_register, this)},
 			{ACTION_GET_CLIENTS_LIST, std::bind(&ClientManager::_get_clients_list, this)},
-			{ACTION_GET_PUBLIC_KEY, std::bind(&ClientManager::_get_client_public_key, this)}
-
+			{ACTION_GET_PUBLIC_KEY, std::bind(&ClientManager::_get_client_public_key, this)},
+			{ACTION_SEND_TEXT_MESSAGE, std::bind(&ClientManager::_send_message_with_content, this)}
 		};
 
 		_menu.run_menu(action_handler_map);
@@ -187,22 +187,53 @@ private:
 
 	void _get_client_public_key()
 	{
-		string requested_client_id = _menu.get_user_input("Enter Client ID");
-		uuid other_client_uuid = Utils::str_to_uuid(requested_client_id);
-		OtherClient* requested_client = NULL;
+		string requested_client_name = _menu.get_user_input("Enter Client Name");
 
-		/* Search that client with requested id within the familiar clients list*/
-		for (auto client : _other_clients)
-		{
-			if (memcmp(other_client_uuid.data, client->client_id, CLIENT_ID_SIZE_BYTES) == 0)
-			{
-				requested_client = client;
-			}
-		}
+		/* Search that client with requested id within the familiar clients list. get it's uid */
+		OtherClient* requested_client = _find_client_by_name(requested_client_name.c_str());
 		
-		_network_manager.send_request_get_client_public_key(other_client_uuid.data, requested_client->public_key);
+		if (!requested_client)
+		{
+			throw ClientError("Client information hasn't been received from server");
+		}
+
+		_network_manager.send_request_get_client_public_key(requested_client->client_id, requested_client->public_key);
 
 		cout << "Public key received successfully" << endl;
+	}
+
+	void _send_message_with_content()
+	{
+		uint32_t message_id = 0;
+		string requested_client_name = _menu.get_user_input("Enter Client Name");
+		OtherClient* requested_client = _find_client_by_name(requested_client_name.c_str());
+
+		if (!requested_client)
+		{
+			throw ClientError("Client information hasn't been received from server");
+		}
+
+		string content = _menu.get_user_input("Enter Message Content");
+
+		message_id = _network_manager.send_message_to_client(requested_client->client_id, MessageType::REGULAR_MESSAGE, content);
+
+		cout << "Message sent successfully.  Message ID= " << message_id << endl;
+	}
+
+
+
+	OtherClient* _find_client_by_name(const char * client_name)
+	{
+		/* Find if client already in familiar clients list */
+		for (auto client : _other_clients)
+		{
+			if (strncmp(client->name, client_name, CLIENT_NAME_SIZE - 1) == 0)
+			{
+				return client;
+			}
+		}
+
+		return NULL;
 	}
 
 

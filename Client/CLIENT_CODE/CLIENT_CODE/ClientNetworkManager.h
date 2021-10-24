@@ -130,7 +130,7 @@ public:
 			client_in_list = (ResponseClientInList*)&response.payload[i * sizeof(ResponseClientInList)];
 			new_client = new OtherClient(client_in_list->name, client_in_list->client_id);
 
-			/* Find if client already in familiar clinets list */
+			/* Find if client already in familiar clients list */
 			for (auto client : other_clients)
 			{
 				if (strncmp(client->name, new_client->name, CLIENT_NAME_SIZE - 1) == 0)
@@ -157,7 +157,7 @@ public:
 	void send_request_get_client_public_key(uint8_t client_id_requested[CLIENT_ID_SIZE_BYTES],
 											uint8_t out_public_key[PUBLIC_KEY_SIZE])
 	{
-		/* Assemble request for client register . send it and get response */
+		/* Assemble request for client public key . send it and get response */
 		ServerResponse response;
 		ServerRequest request(REQUEST_CODE_GET_CLIENT_PUBLIC_KEY,
 							  CLIENT_ID_SIZE_BYTES,
@@ -175,6 +175,49 @@ public:
 		/* Parse response payload and return received client public key */
 		ResponseClientPublicKey* response_payload = (ResponseClientPublicKey *)response.payload;
 		memcpy(out_public_key, response_payload->public_key, PUBLIC_KEY_SIZE);
+	}
+
+
+
+
+	uint32_t send_message_to_client(uint8_t client_id[CLIENT_ID_SIZE_BYTES],
+									MessageType type, 
+									const string& message_content)
+	{
+		uint32_t result_message_id = 0;
+
+		/* Assemble request for client register . send it and get response */
+		ServerResponse response;
+		ServerRequest request(REQUEST_CODE_SEND_MESSAGE, 
+							  sizeof(RequestSendMessage) + message_content.size(),
+							  _client_id.data);
+
+		/* Define message type and size . format payload with meta-data and message content */
+		RequestSendMessage message_metadata(message_content.size(), client_id, type);
+
+		request.payload = new uint8_t[sizeof(RequestSendMessage) + message_content.size()];
+		memcpy(request.payload, &message_metadata, sizeof(RequestSendMessage));
+
+		if (message_content.size() > 0)
+		{
+			/* If there is content insert it right after message metadata */
+			memcpy(&request.payload[sizeof(RequestSendMessage)], message_content.c_str(), message_content.size());
+		}
+
+		uint8_t debug[2000];
+		memcpy(debug, request.payload, sizeof(RequestSendMessage) + message_content.size());
+
+		_process_request_and_response(&request, &response);
+		if (response.code == SERVER_ERROR_CODE)
+		{
+			throw ServerGeneralError("Client ID does not exist");
+		}
+
+		/* Parse response payload and return received message id */
+		ResponseMessageSent* response_payload = (ResponseMessageSent*)response.payload;
+		result_message_id = response_payload->message_id;
+
+		return result_message_id;
 	}
 
 private:

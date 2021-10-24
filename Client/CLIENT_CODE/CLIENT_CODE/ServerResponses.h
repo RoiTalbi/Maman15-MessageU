@@ -65,9 +65,16 @@ struct ResponseClientInList
 #pragma pack(1) 
 struct ResponseClientPublicKey
 {
-	uint8_t clien_id[CLIENT_ID_SIZE_BYTES];
+	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
 	uint8_t public_key[PUBLIC_KEY_SIZE];
 };
 
 
+
+#pragma pack(1) 
+struct ResponseMessageSent
+{
+	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
+	uint32_t message_id;
+};
 

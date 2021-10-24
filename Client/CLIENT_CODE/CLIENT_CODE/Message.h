@@ -8,7 +8,7 @@ enum class MessageType : uint8_t
 {
 	GET_SYMMETRIC_KEY = 1,
 	SEND_SYMMETRIC_KEY = 2,
-	ENCRYPTED_BY_SYMMETRIC_KEY = 3
+	REGULAR_MESSAGE = 3
 };
 
 

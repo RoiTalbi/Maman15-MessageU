@@ -57,9 +57,18 @@ public:
 	string get_user_input(const string& instruction_message)
 	{
 		string input = "";
+		string line = "";
 
 		cout << instruction_message << endl;
-		cin >> input;
+
+		// Get a full line from the user 
+		do
+		{
+			getline(cin, line);
+			input += line;
+
+		} while (line == "");
+	
 
 		return input;
 	}
