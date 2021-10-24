@@ -22,8 +22,9 @@ from server_codes import *
 REQUEST_REGISTER_PAYLOAD_FORMAT = '<255s160s'
 
 
-
 RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT = '<16s255s'
+RESPONSE_CLIENT_PUBLIC_KEY_FORMAT = "<16s160s"
+
 
 
 # ----------------------------------------------------------------
@@ -99,16 +100,21 @@ class Server():
 
 
 
+    def _find_client_by_id(clients_list, client_id):
+
+        for client in clients_list:
+            if client_id == client.get_id():
+                return client
+
+
+
     def _request_get_clients_list(request):
 
         other_clients = Server._clients[:]
 
         # find requesting client by it's id and remove it from other clients list
-        for client in other_clients:
-            if request.client_id == client.get_id():
-                print("Removing requesting client !!" + str (client))
-                other_clients.remove(client)
-                break
+        client = Server._find_client_by_id(other_clients, request.client_id)
+        other_clients.remove(client)
 
         # Assamble response payload (other clinets list)
         packed_clients_list = b''
@@ -127,7 +133,23 @@ class Server():
 
 
     def _request_get_client_public_key(request):
-        pass
+
+        print("REQUEST===>" + str(request))
+
+        # find client requsted public key
+        requested_client_id = uuid.UUID(bytes=request.payload)
+        client = Server._find_client_by_id(Server._clients, requested_client_id)
+
+        print("Found client matching this ID ===> " + str(client))
+
+        response_payload = struct.pack(RESPONSE_CLIENT_PUBLIC_KEY_FORMAT, client.get_id().bytes, client.get_public_key())
+        response = Response(SERVER_VERSION, RESPONSE_CODE_GET_CLIENT_PUBLIC_KEY, len(response_payload) , response_payload)
+
+
+        print("RESPONSE===>" + str(response))
+
+        return response
+
 
     def _request_send_message(request):
         pass

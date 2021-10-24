@@ -30,6 +30,7 @@
 
 // TODO - MOVE TO CPP FILE!!
 
+using namespace std;
 using boost::asio::ip::tcp;
 using boost::uuids::uuid;
 
@@ -118,21 +119,63 @@ public:
 		}
 
 		/* Parse response payload -> Other clients list */
-		size_t other_clients_count = (response.payload_size / sizeof(OtherClient));
-		OtherClient* other_client = NULL;
+		size_t other_clients_count = (response.payload_size / sizeof(ResponseClientInList));
+		OtherClient* new_client = NULL;
+		ResponseClientInList* client_in_list = NULL;
+		bool is_client_is_list = false;
 
 		for (size_t i = 0; i < other_clients_count; i++)
 		{
-			/*Allocate memory for the next client info. copy it's information from response and push
-			it to result clients vector */
-			other_client = new OtherClient();
-			memcpy(other_client, &response.payload[i * sizeof(OtherClient)], sizeof(OtherClient));
+			/* Point to the next client in list within the response payload */
+			client_in_list = (ResponseClientInList*)&response.payload[i * sizeof(ResponseClientInList)];
+			new_client = new OtherClient(client_in_list->name, client_in_list->client_id);
 
-			other_clients.push_back(other_client);
+			/* Find if client already in familiar clinets list */
+			for (auto client : other_clients)
+			{
+				if (strncmp(client->name, new_client->name, CLIENT_NAME_SIZE - 1) == 0)
+				{
+					is_client_is_list = true;
+					break;
+				}
+			}
+
+			/* Insert to familiar clients list only if not there yet */
+			if (!is_client_is_list)
+			{
+				other_clients.push_back(new_client);
+			}
+			else
+			{
+				delete new_client;
+			}
+
+			is_client_is_list = false;
 		}
 	}
 
+	void send_request_get_client_public_key(uint8_t client_id_requested[CLIENT_ID_SIZE_BYTES],
+											uint8_t out_public_key[PUBLIC_KEY_SIZE])
+	{
+		/* Assemble request for client register . send it and get response */
+		ServerResponse response;
+		ServerRequest request(REQUEST_CODE_GET_CLIENT_PUBLIC_KEY,
+							  CLIENT_ID_SIZE_BYTES,
+							  _client_id.data,
+							  SERVER_VERSION,
+							  client_id_requested);
+		
 
+		_process_request_and_response(&request, &response);
+		if (response.code == SERVER_ERROR_CODE)
+		{
+			throw ServerGeneralError("Client ID does not exist");
+		}
+
+		/* Parse response payload and return received client public key */
+		ResponseClientPublicKey* response_payload = (ResponseClientPublicKey *)response.payload;
+		memcpy(out_public_key, response_payload->public_key, PUBLIC_KEY_SIZE);
+	}
 
 private:
 

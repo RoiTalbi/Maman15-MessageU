@@ -9,7 +9,7 @@
 
 
 
-#define MAIN_MENU_MESSAGE		   "\nMessageU client at your service\n\
+#define MAIN_MENU_MESSAGE		   "\n\nMessageU client at your service\n\
 10) Register\n\
 20) Request for clients list\n\
 30) Request for public key\n\
@@ -73,7 +73,7 @@ public:
 		while (true)
 		{
 			// Scan for user's choice
-			cout << MAIN_MENU_MESSAGE << endl;
+			cout << MAIN_MENU_MESSAGE << endl << endl;
 			cin >> user_choice;
 
 			try 

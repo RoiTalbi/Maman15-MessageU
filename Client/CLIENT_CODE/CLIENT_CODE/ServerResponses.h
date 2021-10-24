@@ -53,3 +53,21 @@ public:
 
 
 /* ----------- All other server responses structures  ----------- */
+
+#pragma pack(1)
+struct ResponseClientInList
+{
+	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
+	char name[CLIENT_NAME_SIZE];
+};
+
+
+#pragma pack(1) 
+struct ResponseClientPublicKey
+{
+	uint8_t clien_id[CLIENT_ID_SIZE_BYTES];
+	uint8_t public_key[PUBLIC_KEY_SIZE];
+};
+
+
+

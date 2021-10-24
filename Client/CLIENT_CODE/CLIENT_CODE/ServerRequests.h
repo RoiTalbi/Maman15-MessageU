@@ -64,3 +64,5 @@ struct RequestRegister
 	char name[CLIENT_NAME_SIZE];
 	uint8_t public_key[PUBLIC_KEY_SIZE];
 };
+
+

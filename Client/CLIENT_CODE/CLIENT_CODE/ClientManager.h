@@ -43,13 +43,11 @@ using namespace CryptoPP;
 
 
 
-
-
 class ClientManager
 {
 
 public:
-	ClientManager() : _network_manager(_client_id), _is_registered(false), _public_key{0} , _private_key{0}
+	ClientManager() : _network_manager(_client_id), _is_registered(false), _public_key{1,2,3} , _private_key{9,9,9}
 	{
 		string line;
 
@@ -125,7 +123,16 @@ public:
 	}
 
 
-	
+	virtual ~ClientManager()
+	{
+		/* Release all dynamic allocated memory */
+		for (auto client : _other_clients)
+		{
+			delete client;
+		}
+
+
+	}
 
 private:
 
@@ -135,7 +142,9 @@ private:
 		std::map <MenuAction, std::function<void()>> action_handler_map = 
 		{
 			{ACTION_REGISTER, std::bind(&ClientManager::_request_register, this)},
-			{ACTION_GET_CLIENTS_LIST, std::bind(&ClientManager::_get_clients_list, this)}
+			{ACTION_GET_CLIENTS_LIST, std::bind(&ClientManager::_get_clients_list, this)},
+			{ACTION_GET_PUBLIC_KEY, std::bind(&ClientManager::_get_client_public_key, this)}
+
 		};
 
 		_menu.run_menu(action_handler_map);
@@ -166,24 +175,36 @@ private:
 
 	void _get_clients_list()
 	{
-		std::vector<OtherClient*> other_clients;
-
-		_network_manager.send_request_get_clients_list(other_clients);
+		_network_manager.send_request_get_clients_list(_other_clients);
 
 		cout << "------- Clients list -------" << endl;
-		for (auto client : other_clients)
+		for (auto client : _other_clients)
 		{
 			cout << "Client Name: " << client->name << "\t ID: " << Utils::raw_bytes_to_uuid_str(client->client_id) << endl;	
 		}
 		cout << "----------------------------" << endl;
-
-
-		/* Release all allocated clients memory */
-		for (auto client : other_clients)
-		{
-			delete client;
-		}
 	}
+
+	void _get_client_public_key()
+	{
+		string requested_client_id = _menu.get_user_input("Enter Client ID");
+		uuid other_client_uuid = Utils::str_to_uuid(requested_client_id);
+		OtherClient* requested_client = NULL;
+
+		/* Search that client with requested id within the familiar clients list*/
+		for (auto client : _other_clients)
+		{
+			if (memcmp(other_client_uuid.data, client->client_id, CLIENT_ID_SIZE_BYTES) == 0)
+			{
+				requested_client = client;
+			}
+		}
+		
+		_network_manager.send_request_get_client_public_key(other_client_uuid.data, requested_client->public_key);
+
+		cout << "Public key received successfully" << endl;
+	}
+
 
 
 private:
@@ -199,6 +220,9 @@ private:
 	/* Networking info */
 	string _server_ip;
 	string _server_port;
+
+	/* Other clients */
+	std::vector<OtherClient*> _other_clients;
 
 	/* auxiliary modules */
 	ClientNetworkManager _network_manager;
