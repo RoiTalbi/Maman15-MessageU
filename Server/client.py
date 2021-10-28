@@ -35,6 +35,8 @@ class Client():
         else:
             return False
 
+    def __hash__(self):
+        return hash(repr(self))
 
     def get_id(self):
         return self._id

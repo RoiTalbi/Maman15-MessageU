@@ -144,7 +144,8 @@ private:
 			{ACTION_REGISTER, std::bind(&ClientManager::_request_register, this)},
 			{ACTION_GET_CLIENTS_LIST, std::bind(&ClientManager::_get_clients_list, this)},
 			{ACTION_GET_PUBLIC_KEY, std::bind(&ClientManager::_get_client_public_key, this)},
-			{ACTION_SEND_TEXT_MESSAGE, std::bind(&ClientManager::_send_message_with_content, this)}
+			{ACTION_SEND_TEXT_MESSAGE, std::bind(&ClientManager::_send_message_with_content, this)},
+			{ACTION_GET_PENDING_MESSAGES, std::bind(&ClientManager::_get_pending_messages, this)}
 		};
 
 		_menu.run_menu(action_handler_map);
@@ -218,6 +219,13 @@ private:
 		message_id = _network_manager.send_message_to_client(requested_client->client_id, MessageType::REGULAR_MESSAGE, content);
 
 		cout << "Message sent successfully.  Message ID= " << message_id << endl;
+	}
+
+
+	void _get_pending_messages()
+	{
+
+
 	}
 
 

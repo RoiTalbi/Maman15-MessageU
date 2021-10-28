@@ -12,7 +12,7 @@
 /* Constants and Macros */
 #define RESPONSE_PACKET_HEADERS_SIZE	(7)
 
-
+#define RESPONSE_MESSAGE_HEADERS_SIZE	(25)
 
 
 
@@ -77,4 +77,3 @@ struct ResponseMessageSent
 	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
 	uint32_t message_id;
 };
-

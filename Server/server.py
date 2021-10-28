@@ -13,6 +13,8 @@ from client import Client
 from errors import *
 from globals import *
 from server_codes import *
+from message import *
+from messages_manager import MessagesManager
 
 
 # ----------------------------------------------------------------
@@ -43,6 +45,7 @@ class Server():
     def _init_server():
         Server._clients = []
         Server._general_error_response = Response(SERVER_VERSION, SERVER_ERROR_CODE, 0, b'')
+        Server._messages_manager = MessagesManager()
 
     def start_server(port_num):
         Server._init_server();
@@ -65,10 +68,10 @@ class Server():
             if client.get_name() == name_str:
                 raise ClientExsistsException("Client Already Exsists")
 
-        # Create new client
-        # TODO - make sure client id unquie!!!!!!!!!!!!!!!
-        new_client = Client(uuid.uuid4(), name_str, public_key, time.time())
+        # Create new client, add it to clients list and update messages manager
+        new_client = Client(uuid.uuid1(), name_str, public_key, time.time())
         Server._clients.append(new_client)
+        Server._messages_manager.add_client(new_client)
 
         return new_client
 
@@ -164,25 +167,25 @@ class Server():
         (dest_client_id, msg_type, content_size) = struct.unpack(REQUEST_SEND_MESSAGE_HEADERS_FORMAT, \
          request.payload[:CLIENT_MESSAGE_HEADERS_SIZE]) 
 
-
-        print (f"DEST ID= {dest_client_id}  | TYPE= {msg_type} | SIZE= {content_size}")
-
+        #print (f"DEST ID= {dest_client_id}  | TYPE= {msg_type} | SIZE= {content_size}")
 
         if content_size > 0:
             content = request.payload[CLIENT_MESSAGE_HEADERS_SIZE:].decode('utf-8')
 
-        print("Content===> " + content)
-
+        #print("Content===> " + content)
 
         dest_client = Server._find_client_by_id(Server._clients, uuid.UUID(bytes=dest_client_id))
 
         if not dest_client:
-            print ("Client id not found!!!!!!!!!!!!")
             return Server._general_error_response
 
         # TODO !!!!! store that message in messages manager (get read message ID)
-        message_id = 7789
+        message_id = Server._messages_manager.add_message(request.client_id, dest_client, \
+         MESSAGE_TYPE_REGULAR_MESSAGE, content)
 
+
+        # TODO - REMOVE !! DEBUG !
+        Server._messages_manager.debug_print()
 
         # build respone
         response_payload = struct.pack(RESPONSE_MESSAGE_SENT_FORMAT, dest_client_id, message_id)        

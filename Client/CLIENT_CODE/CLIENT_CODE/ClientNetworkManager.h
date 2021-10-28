@@ -219,6 +219,37 @@ public:
 
 		return result_message_id;
 	}
+	
+
+	void get_pending_messages(vector<Message*>& messages_list)
+	{
+		ServerResponse response;
+		ServerRequest request(REQUEST_CODE_GET_PENDING_MESSAGES, 0 ,_client_id.data);
+		size_t response_payload_cursor = 0;
+
+		_process_request_and_response(&request, &response);
+		if (response.code == SERVER_ERROR_CODE)
+		{
+			throw ServerGeneralError("Error getting client's messages");
+		}
+
+		/* Parse response payload - add all messages to message list given */
+		while (response_payload_cursor < response.payload_size)
+		{
+			Message* message_in_response = (Message*)response.payload;
+
+			/* Create new message based on one in response. Deep copy it's content !*/
+			Message* message = new Message(message_in_response);
+			message->content = new uint8_t[message->content_size];
+			memcpy(message->content, message_in_response->content, message_in_response->content_size);
+
+			messages_list.push_back(message);
+			response_payload_cursor += (RESPONSE_MESSAGE_HEADERS_SIZE + message_in_response->content_size);
+		}
+
+		// TODO !!!!!!!!!!!!!!!! COMPLETE SERVER SIDE AND TEST !!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	}
 
 private:
 

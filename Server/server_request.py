@@ -18,7 +18,6 @@ REQUEST_HEADERS_SIZE = 23
 
 
 
-
 """
 A simple Stracture to hold request data
 """

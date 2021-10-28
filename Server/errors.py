@@ -16,3 +16,7 @@ class ServerException(Exception):
 
 class ClientExsistsException(ServerException):
 	pass
+
+
+class ClientNotExsistException(ServerException):
+	pass
