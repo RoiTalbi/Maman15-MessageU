@@ -181,7 +181,7 @@ private:
 		cout << "------- Clients list -------" << endl;
 		for (auto client : _other_clients)
 		{
-			cout << "Client Name: " << client->name << "\t ID: " << Utils::raw_bytes_to_uuid_str(client->client_id) << endl;	
+			cout << "Client Name: " << client->name << "  \t ID: " << Utils::raw_bytes_to_uuid_str(client->client_id) << endl;	
 		}
 		cout << "----------------------------" << endl;
 	}
@@ -224,8 +224,46 @@ private:
 
 	void _get_pending_messages()
 	{
+		vector<Message*> messages_received;
 
+		/* Retrieve all messages from server and present them to the client */
+		_network_manager.get_pending_messages(messages_received);
 
+		cout << endl << "--------------------";
+		for (auto message : messages_received)
+		{
+			OtherClient* sender = _find_client_by_id(message->sender_client_id);
+			cout << endl << "From: " << sender->name << endl;
+
+			switch (message->type)
+			{
+			case MessageType::GET_SYMMETRIC_KEY:
+				cout << "Request for symmetric key" << endl;
+				break;
+
+			case MessageType::SYMMETRIC_KEY_SENT:
+				cout << "Symmetric key received" << endl;
+
+				// TODO - SAVE symmetric key
+
+				break;
+
+			case MessageType::REGULAR_MESSAGE:
+
+				// TODO - FIND SYMMTRIC KET OF THAT CLIENT AND DECRYPT HERE
+				// PRINT ERR MESSGAE IF HIS KEY HAS NOT BEEN RECEIVED YET
+				string text_message = string((char*)message->content, message->content_size);
+
+				cout << "Content:" << endl << text_message << endl << "--------<EOM>--------" << endl;
+				break;
+			}
+		}
+
+		/* Delete all printed messages */
+		for (auto message : messages_received)
+		{
+			delete message;
+		}
 	}
 
 
@@ -236,6 +274,20 @@ private:
 		for (auto client : _other_clients)
 		{
 			if (strncmp(client->name, client_name, CLIENT_NAME_SIZE - 1) == 0)
+			{
+				return client;
+			}
+		}
+
+		return NULL;
+	}
+
+	OtherClient* _find_client_by_id(const uint8_t client_id[CLIENT_ID_SIZE_BYTES])
+	{
+		/* Find if client already in familiar clients list */
+		for (auto client : _other_clients)
+		{
+			if (memcmp(client->client_id, client_id, CLIENT_ID_SIZE_BYTES) == 0)
 			{
 				return client;
 			}

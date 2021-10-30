@@ -1,8 +1,10 @@
+del roi.info
+
 copy /Y ..\..\Debug\CLIENT_CODE.exe .
 del me.info
 
 CLIENT_CODE.exe < test1.inp
-del me.info
+rename me.info roi.info
 
 CLIENT_CODE.exe < test2.inp
 del me.info
@@ -12,4 +14,9 @@ del me.info
 
 CLIENT_CODE.exe < test4.inp
 
+CLIENT_CODE.exe < sendMsg.inp
+
+
+del me.info
+rename roi.info me.info
 move /Y me.info ..
