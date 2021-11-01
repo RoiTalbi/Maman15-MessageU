@@ -16,10 +16,11 @@ MESSAGE_TYPE_REGULAR_MESSAGE = 3
 
 class Message:
 
-	def __init__(self, msg_type, sender_id, content = ""):
+	def __init__(self, msg_type, sender_id, msg_id, content = b''):
 		self._type = msg_type
 		self._sender_id = sender_id
 		self._content = content
+		self._id = msg_id
 
 
 	def __str__(self):
@@ -34,4 +35,7 @@ class Message:
 
 	def get_content(self):
 		return self._content
+
+	def get_message_id(self):
+		return self._id
 

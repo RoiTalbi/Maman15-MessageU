@@ -46,29 +46,38 @@ class MessagesManager:
 
 
 
-	def add_message(self, sender_id, receiver, msg_type, content):
-
-		new_message = Message(msg_type, sender_id, content)
-
+	def _get_client_messages_list(self, client):
 		try:
-			client_messages_list = self._clients_messages[receiver]
-			client_messages_list.append(new_message)
-
-			# Update and return the unquie message counter (message ID)
-			self._message_id_counter += 1
-			return self._message_id_counter
-
-		except Exception as ex:
-			raise ClientNotExsistException("Client not found in client messages pool")
-
-
-	def get_client_pending_messages(self, client):
-
-		try:
-			client_messages_list = self._clients_messages[receiver]
+			client_messages_list = self._clients_messages[client]
 			return client_messages_list
 
 		except Exception as ex:
-			raise ClientNotExsistException("Client not found in client messages pool") 
+			raise ClientNotExsistException("Client not found")
 
 
+
+
+	def add_message(self, sender_id, receiver, msg_type, content):
+
+		#  update message id counter. Create message and add it to the matching clients list
+		self._message_id_counter += 1
+		new_message = Message(msg_type, sender_id, self._message_id_counter, content)
+
+		client_messages_list = self._get_client_messages_list(receiver)
+		client_messages_list.append(new_message)
+
+		# Update and return the unquie message counter (message ID)	
+		return self._message_id_counter
+
+
+	def get_client_pending_messages(self, client):
+		return self._get_client_messages_list(client)
+
+
+
+	def release_pending_messages(self, client):
+		try:
+			del self._clients_messages[client][:]
+
+		except Exception as ex:
+			raise ClientNotExsistException("Client not found")

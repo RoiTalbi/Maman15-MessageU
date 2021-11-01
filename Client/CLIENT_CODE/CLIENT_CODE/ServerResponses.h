@@ -48,7 +48,7 @@ public:
 		}
 	}
 };
-
+#pragma pack(pop)
 
 
 
@@ -60,6 +60,8 @@ struct ResponseClientInList
 	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
 	char name[CLIENT_NAME_SIZE];
 };
+#pragma pack(pop)
+
 
 
 #pragma pack(1) 
@@ -68,6 +70,7 @@ struct ResponseClientPublicKey
 	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
 	uint8_t public_key[PUBLIC_KEY_SIZE];
 };
+#pragma pack(pop)
 
 
 
@@ -77,3 +80,4 @@ struct ResponseMessageSent
 	uint8_t client_id[CLIENT_ID_SIZE_BYTES];
 	uint32_t message_id;
 };
+#pragma pack(pop)

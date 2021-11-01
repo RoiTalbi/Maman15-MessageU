@@ -67,19 +67,9 @@ class ServerNetworkManager():
                 ServerNetworkManager.selector.unregister(connection)
                 connection.close()
 
-
-        except ServerException as ex:
-            # TODO - Handle errors!!!!
-            print("Server Error!!!!" + str(ex))
-
-        except socket.error as ex:
-            # TODO - Handle errors!!!!
-            print("Socket recv error!!!!!!!!!!!!!!!!!!" + str(ex))
-            raise ex
-
-        #except Exception as ex:
-        #    # TODO - Handle errors!!!!
-        #    print("General Error!!!!!!!!!!!!!!!!!!" + str(ex))
+        except Exception as ex:
+            # TODO - Handle errors!
+            print("General Error:" + str(ex))
             
 
     def start(port_num):

@@ -166,7 +166,7 @@
     <ClInclude Include="cryptopp_wrapper\AESWrapper.h" />
     <ClInclude Include="cryptopp_wrapper\Base64Wrapper.h" />
     <ClInclude Include="cryptopp_wrapper\RSAWrapper.h" />
-    <ClInclude Include="Encryption.h" />
+    <ClInclude Include="EncryptionManager.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="ClientNetworkManager.h" />

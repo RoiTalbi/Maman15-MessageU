@@ -46,6 +46,8 @@ public:
 	}
 };
 
+#pragma pack(pop)
+
 
 
 
@@ -64,6 +66,8 @@ struct RequestRegister
 	char name[CLIENT_NAME_SIZE];
 	uint8_t public_key[PUBLIC_KEY_SIZE];
 };
+#pragma pack(pop)
+
 
 
 #pragma pack(1)
@@ -87,3 +91,5 @@ struct RequestSendMessage
 	MessageType type;
 	uint32_t content_size;
 };
+
+#pragma pack(pop)

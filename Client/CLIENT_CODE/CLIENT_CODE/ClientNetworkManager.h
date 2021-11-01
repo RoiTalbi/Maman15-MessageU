@@ -79,7 +79,7 @@ public:
 
 
 	void send_request_register(const std::string& name,
-							   uint8_t public_key[PUBLIC_KEY_SIZE],
+							   const string& public_key,
 							   boost::uuids::uuid* received_client_id)
 	{
 		uint8_t temp_client_id[CLIENT_ID_SIZE_BYTES] = { 0 };
@@ -87,7 +87,7 @@ public:
 
 		/* Assemble request for client register . send it and get response */
 		ServerRequest request(REQUEST_CODE_REGISTER, sizeof(RequestRegister), temp_client_id);
-		RequestRegister register_request_payload(name.c_str(), public_key);
+		RequestRegister register_request_payload(name.c_str(), (uint8_t *)public_key.c_str());
 
 		request.payload = (uint8_t*)(&register_request_payload);
 
@@ -182,7 +182,7 @@ public:
 
 	uint32_t send_message_to_client(uint8_t client_id[CLIENT_ID_SIZE_BYTES],
 									MessageType type, 
-									const string& message_content)
+									const string& message_content = "")
 	{
 		uint32_t result_message_id = 0;
 

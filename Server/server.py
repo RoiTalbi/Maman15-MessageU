@@ -34,6 +34,7 @@ REQUEST_SEND_MESSAGE_HEADERS_FORMAT = '<16sBI'
 RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT = '<16s255s'
 RESPONSE_CLIENT_PUBLIC_KEY_FORMAT = "<16s160s"
 RESPONSE_MESSAGE_SENT_FORMAT = "<16sI"
+RESPONSE_PENDING_MESSAGE_FORMAT = "<16sIBI"
 
 
 # ----------------------------------------------------------------
@@ -53,9 +54,19 @@ class Server():
 
     def handle_request(request):
 
-        # Invoke matching handler function by using request code
-        handler_function = REQUEST_HANDLERS[request.code]
-        return handler_function(request)
+        try:
+            # Invoke matching handler function by using request code
+            handler_function = REQUEST_HANDLERS[request.code]
+            return handler_function(request)
+
+        except ServerException as ex:
+            print("Server Error!!" + str(ex))
+
+        except Exception as ex:
+            # TODO - Handle errors!!!! 
+            print("General Error:" + str(ex))
+
+
 
 
     def _register_new_client(name, public_key):
@@ -126,7 +137,8 @@ class Server():
 
         # find requesting client by it's id and remove it from other clients list
         client = Server._find_client_by_id(other_clients, request.client_id)
-        other_clients.remove(client)
+        if client:
+            other_clients.remove(client)
 
         # Assamble response payload (other clinets list)
         packed_clients_list = b''
@@ -170,7 +182,7 @@ class Server():
         #print (f"DEST ID= {dest_client_id}  | TYPE= {msg_type} | SIZE= {content_size}")
 
         if content_size > 0:
-            content = request.payload[CLIENT_MESSAGE_HEADERS_SIZE:].decode('utf-8')
+            content = request.payload[CLIENT_MESSAGE_HEADERS_SIZE:]
 
         #print("Content===> " + content)
 
@@ -179,10 +191,8 @@ class Server():
         if not dest_client:
             return Server._general_error_response
 
-        # TODO !!!!! store that message in messages manager (get read message ID)
         message_id = Server._messages_manager.add_message(request.client_id, dest_client, \
-         MESSAGE_TYPE_REGULAR_MESSAGE, content)
-
+         msg_type, content)
 
         # TODO - REMOVE !! DEBUG !
         Server._messages_manager.debug_print()
@@ -195,7 +205,25 @@ class Server():
         
 
     def _request_get_pending_messages(request):
-        pass
+        
+        # find client's pending messages
+        client = Server._find_client_by_id(Server._clients, request.client_id)
+        clients_messages = Server._messages_manager.get_client_pending_messages(client)
+
+        # Pack each message headers with it's content and add it to response payload
+        response_payload = b''
+        for msg in clients_messages:
+            response_payload += (struct.pack(RESPONSE_PENDING_MESSAGE_FORMAT, msg.get_sender_id().bytes,
+             msg.get_message_id(), msg.get_type(), len(msg.get_content())) + msg.get_content())
+
+
+        # Release all messages of that client. and send back them as a response 
+        Server._messages_manager.release_pending_messages(client)
+
+        Server._messages_manager.debug_print()
+
+        response = Response(SERVER_VERSION, RESPONSE_CODE_GET_PENDING_MESSAGES, len(response_payload) , response_payload)
+        return response
 
 
 

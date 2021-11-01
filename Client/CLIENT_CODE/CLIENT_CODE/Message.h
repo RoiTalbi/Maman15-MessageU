@@ -57,3 +57,5 @@ public:
 	}
 
 };
+
+#pragma pack(pop)
