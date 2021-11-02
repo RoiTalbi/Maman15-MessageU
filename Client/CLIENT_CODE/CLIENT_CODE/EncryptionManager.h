@@ -9,59 +9,70 @@
 #include "globals.h"
 
 
+
+
+
+
+
+
+/*  EncryptionManager module is responsible for Asymmetric encryption. 
+	ClientManager can extend this module and use it to encrypt/decrypt messages and store keys.
+*/
 class EncryptionManager
 {
 	
 
 public:
 	EncryptionManager() : _rsa_private(NULL) 
-	{
-
-	}
+	{}
 
 
-	void set_keys(std::string private_key)
-	{
-		_rsa_private = new RSAPrivateWrapper(private_key);
-		//_rsa_public = new RSAPublicWrapper(_rsa_private->getPublicKey());
-
-		_private_key = _rsa_private->getPrivateKey();
-		_public_key = _rsa_private->getPublicKey();
-	}
-
-	void generate_keys()
-	{
-		_rsa_private = new RSAPrivateWrapper();
-		//_rsa_public = new RSAPublicWrapper(_rsa_private->getPublicKey());
-
-		_public_key = _rsa_private->getPublicKey();	
-		_private_key = _rsa_private->getPrivateKey();
-	}
+	//************************************************************************************
+	// Brief:       Set private key and public key - if they exist already 
+	// Parameter:   std::string private_key
+	// Returns:     void
+	// Remarks:      
+	//************************************************************************************
+	void set_keys(std::string private_key);
 
 
-	std::string encrypt(uint8_t other_public_key[PUBLIC_KEY_SIZE], const char* data, size_t size)
-	{
-		RSAPublicWrapper rsa_other((char*)other_public_key, PUBLIC_KEY_SIZE);
-		return rsa_other.encrypt(data, size);
-	}
+	//************************************************************************************
+	// Brief:       Generate new Keys - public & private
+	// Returns:     void
+	// Remarks:      
+	//************************************************************************************
+	void generate_keys();
 
-	std::string decrypt(const char* data, size_t size)
-	{
-		return _rsa_private->decrypt(data, size);
-	}
+
+	//************************************************************************************
+	// Brief:       Encrypt buffer of data. return ciphertext
+	// Parameter:   uint8_t other_public_key[PUBLIC_KEY_SIZE]
+	// Parameter:   const char * data
+	// Parameter:   size_t size
+	// Returns:     std::string
+	// Remarks:      
+	//************************************************************************************
+	std::string encrypt(uint8_t other_public_key[PUBLIC_KEY_SIZE], const char* data, size_t size);
+
+	//************************************************************************************
+// Brief:       Decrypt buffer of data. return plaintext
+// Returns:     
+// Remarks:      
+//************************************************************************************
+	std::string decrypt(const char* data, size_t size);
+
+
+
 
 	~EncryptionManager()
 	{
 		delete _rsa_private;
-		//delete _rsa_public;
 	}
 	
 
 protected:
 
-	//RSAPublicWrapper* _rsa_public;
 	RSAPrivateWrapper* _rsa_private;
-
 	std::string  _public_key;
 	std::string  _private_key;
 };

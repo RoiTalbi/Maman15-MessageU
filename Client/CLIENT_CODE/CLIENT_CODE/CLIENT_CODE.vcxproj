@@ -155,10 +155,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClientManager.cpp" />
+    <ClCompile Include="ClientMenu.cpp" />
+    <ClCompile Include="ClientNetworkManager.cpp" />
     <ClCompile Include="cryptopp_wrapper\AESWrapper.cpp" />
     <ClCompile Include="cryptopp_wrapper\Base64Wrapper.cpp" />
     <ClCompile Include="cryptopp_wrapper\RSAWrapper.cpp" />
+    <ClCompile Include="EncryptionManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientManager.h" />

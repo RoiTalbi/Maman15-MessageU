@@ -9,6 +9,7 @@
 #define  REQUEST_CODE_SEND_MESSAGE  		   (1003)
 #define  REQUEST_CODE_GET_PENDING_MESSAGES     (1004)
 
+
 /* Server Response Codes */
 #define  RESPONSE_CODE_REGISTER   		 	  (2000)
 #define  RESPONSE_CODE_GET_CLIENTS_LIST   	  (2001)

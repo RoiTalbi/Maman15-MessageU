@@ -6,17 +6,21 @@
 
 
 
-/* Error Codes */
 
+
+
+/* Error Codes */
 #define CLIENT_GENERAL_ERROR_EXIT_CODE		(1)
 #define CLIENT_NETWORK_ERROR_EXIT_CODE		(2)
 
 
 
-/* Module Exceptions */
 
 
 
+
+
+/* Client generic defined exception */
 class ClientError : public std::exception
 {
 public:
@@ -39,6 +43,8 @@ public:
 
 
 
+
+/* Client  defined exception for server errors */
 class ServerGeneralError : public ClientError
 {
 public:
@@ -53,6 +59,8 @@ public:
 
 
 
+
+/* Client  defined exception for network errors */
 class NetworkError : public ClientError
 {
 public:

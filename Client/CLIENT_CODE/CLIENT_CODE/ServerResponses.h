@@ -7,15 +7,22 @@
 
 
 
-
-
 /* Constants and Macros */
 #define RESPONSE_PACKET_HEADERS_SIZE	(7)
-
 #define RESPONSE_MESSAGE_HEADERS_SIZE	(25)
 
 
 
+
+
+
+
+//**********************************************************************************
+// All struct defined in that module are PACKED and are strict to follow network protocol 
+// With the server.
+//
+// For each response that server can received - there should be a matching struct .
+//**********************************************************************************
 
 
 
@@ -29,7 +36,6 @@ public:
 	uint8_t version;
 	uint16_t code;
 	uint32_t payload_size;
-
 	uint8_t* payload;
 
 
@@ -49,6 +55,8 @@ public:
 	}
 };
 #pragma pack(pop)
+
+
 
 
 

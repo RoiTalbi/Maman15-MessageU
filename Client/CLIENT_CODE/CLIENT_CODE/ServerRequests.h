@@ -14,8 +14,12 @@
 
 
 
-
-
+//**********************************************************************************
+// All struct defined in that module are PACKED and are strict to follow network protocol 
+// With the server.
+//
+// For each request that server can received - there should be a matching struct 
+//**********************************************************************************
 
 
 

@@ -1,13 +1,21 @@
 #pragma once
 
 /* Includes*/
-
 #include <map>
 #include <iostream>
 #include <string>
 #include <functional>
+#include <exception>
+
+#include "Logger.h"
+#include "Errors.h"
 
 
+
+
+
+
+/* Enums and Constants */
 
 #define MAIN_MENU_MESSAGE		   "\n\nMessageU client at your service\n\
 10) Register\n\
@@ -20,13 +28,10 @@
 0) Exit client\n?"
 
 
-
 #define MESSAGE_INVALID_CHOICE		("Invalid choice. Please enter choice again\n")
 #define MESSAGE_SERVER_ERROR		("Server responded with an error: ")
 
 
-
-/* Enums and Constants */
 enum MenuAction
 {
 	ACTION_EXIT_MENU = 0,
@@ -43,8 +48,13 @@ enum MenuAction
 using namespace std;
 
 
-/* Classes */
 
+
+/*  ClienMenu module runs the CLI menu in while loop until exit action is entered.
+	in each iteration the user is asked for an input through command line. each input 
+	number (action number) is transferred than to external handler callback function. that is invoked 
+	when action number is entered.
+*/
 class ClientMenu
 {
 
@@ -54,73 +64,19 @@ public:
 
 	}
 
-	string get_user_input(const string& instruction_message)
-	{
-		string input = "";
-		string line = "";
 
-		cout << instruction_message << endl;
+	//************************************************************************************
+	// Brief:       return the user input line entered after printing instruction
+	// Parameter:   const string & instruction_message
+	// Returns:     std::string
+	// Remarks:      
+	//************************************************************************************
+	string get_user_input(const string& instruction_message);
 
-		// Get a full line from the user 
-		do
-		{
-			getline(cin, line);
-			input += line;
-
-		} while (line == "");
-	
-
-		return input;
-	}
-
-
-	void run_menu(std::map <MenuAction, std::function<void()>>& action_handlers_map)
-	{
-		string user_choice= "";
-		MenuAction menu_choice = ACTION_EXIT_MENU;
-
-		while (true)
-		{
-			// Scan for user's choice
-			cout << MAIN_MENU_MESSAGE << endl << endl;
-			cin >> user_choice;
-
-			try 
-			{
-				menu_choice = (MenuAction)::stoi(user_choice);
-			}
-			catch (const std::exception& ex)
-			{
-				cout << MESSAGE_INVALID_CHOICE;
-				continue;
-			}
-
-			// make sure user's choice is valid action 
-			if (menu_choice == ACTION_EXIT_MENU)
-			{
-				break;
-			}
-			else if (action_handlers_map.find(menu_choice) == action_handlers_map.end())
-			{
-				cout << MESSAGE_INVALID_CHOICE;
-				continue;
-			}
-
-			//Execute matching handler to user's request according to action handlers map
-			try
-			{
-				action_handlers_map[menu_choice]();
-			}
-			catch (const ServerGeneralError& ex)
-			{
-				cout << MESSAGE_SERVER_ERROR << ex.what() << endl;
-			}
-			catch (const ClientError& ex)
-			{
-				Logger::LOG_ERROR(ex.what());
-			}
-			
-			
-		}
-	}
+	//************************************************************************************
+	// Brief:       Runs CLI menu. ask user for action and execute matching handle callback
+	// Returns:     void
+	// Remarks:      
+	//************************************************************************************
+	void run_menu(std::map <MenuAction, std::function<void()>>& action_handlers_map);
 };
