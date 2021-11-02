@@ -16,10 +16,11 @@ CLIENT_CODE.exe < test4.inp
 
 CLIENT_CODE.exe < sendMsg.inp
 
-
 del me.info
 rename roi.info me.info
-move /Y me.info ..
+
+CLIENT_CODE.exe < ReadMessages.inp
+::move /Y me.info ..
 
 
 @pause

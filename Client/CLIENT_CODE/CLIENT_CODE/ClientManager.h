@@ -284,9 +284,12 @@ private:
 			throw ClientError("Client's public key should be received first");
 		}
 
-		/* Generate symmetric key for that client and save that key in memory*/
-		requested_client->symmetric_key_present = true;
-		aes.GenerateKey(requested_client->symmetric_key, SYMMETRIC_KEY_SIZE);
+		/* Generate symmetric key for that client if not present and save that key in memory*/
+		if (!requested_client->symmetric_key_present)
+		{
+			requested_client->symmetric_key_present = true;
+			aes.GenerateKey(requested_client->symmetric_key, SYMMETRIC_KEY_SIZE);
+		}
 		
 		/* Encrypt that symmetric key with public key , and send it to the user */
 		string encrypted_symmetric_key = encrypt(requested_client->public_key,
