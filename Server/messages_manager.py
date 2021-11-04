@@ -1,6 +1,3 @@
-
-
-
 # ----------------------------------------------------------------
 # Imports
 # ----------------------------------------------------------------
@@ -11,10 +8,17 @@ from errors import  *
 
 
 
-# ----------------------------------------------------------------
-# Classes
-# ----------------------------------------------------------------
 
+
+"""
+	----------------------------------------------------------------------
+	MessageManager module handles all messages in the server side.
+	It contains a dict in which for each client (receiver) is the entry 
+	and a list of Message (object) is the value. 
+
+	messages can be added and removed thourgh it's API
+	----------------------------------------------------------------------
+"""
 class MessagesManager:
 
 	def __init__(self):
@@ -26,26 +30,20 @@ class MessagesManager:
 		self._clients_messages = {}
 
 
-	# When a new client is registed, there is a need to add him to messages pool
+	"""
+	----------------------------------------------------------------------
+	When a new client is registed, there is a need to add him to messages pool
+	----------------------------------------------------------------------
+	"""
 	def add_client(self, client):
 		self._clients_messages[client] = []
 
-	# TODO - REMOVE!!!!!!!
-	def debug_print(self):
 
-		for c in self._clients_messages:
-			print ("--------------" * 4)
-			print (str(c))
-
-			messages = self._clients_messages[c]
-
-			for m in messages:
-				print (str(m))
-
-			print ("--------------" * 4)
-
-
-
+	"""
+	----------------------------------------------------------------------
+	Get all clients messages goten so far. as a list of Message objcet 
+	----------------------------------------------------------------------
+	"""
 	def _get_client_messages_list(self, client):
 		try:
 			client_messages_list = self._clients_messages[client]
@@ -55,8 +53,11 @@ class MessagesManager:
 			raise ClientNotExsistException("Client not found")
 
 
-
-
+	"""
+	----------------------------------------------------------------------
+	Add message received from sender client to receiver client.
+	----------------------------------------------------------------------
+	"""
 	def add_message(self, sender_id, receiver, msg_type, content):
 
 		#  update message id counter. Create message and add it to the matching clients list
@@ -70,11 +71,20 @@ class MessagesManager:
 		return self._message_id_counter
 
 
+	"""
+	----------------------------------------------------------------------
+	Get messages list for given client
+	----------------------------------------------------------------------
+	"""
 	def get_client_pending_messages(self, client):
 		return self._get_client_messages_list(client)
 
 
-
+	"""
+	----------------------------------------------------------------------
+	Delete all pending messages of given client
+	----------------------------------------------------------------------
+	"""
 	def release_pending_messages(self, client):
 		try:
 			del self._clients_messages[client][:]

@@ -20,15 +20,11 @@ from messages_manager import MessagesManager
 # ----------------------------------------------------------------
 # Globals
 # ----------------------------------------------------------------
-
-
 CLIENT_MESSAGE_HEADERS_SIZE = 21
-
 
 
 REQUEST_REGISTER_PAYLOAD_FORMAT = '<255s160s'
 REQUEST_SEND_MESSAGE_HEADERS_FORMAT = '<16sBI'
-
 
 
 RESPONSE_CLIENTS_LIST_PAYLOAD_FORMAT = '<16s255s'
@@ -37,25 +33,61 @@ RESPONSE_MESSAGE_SENT_FORMAT = "<16sI"
 RESPONSE_PENDING_MESSAGE_FORMAT = "<16sIBI"
 
 
+
+
 # ----------------------------------------------------------------
 # Classes
 # ----------------------------------------------------------------
 
+
+"""
+    ----------------------------------------------------------------------
+    Server Module is the main module in server side.
+    it handles all requests sent from client and assmeble responses to be sent.
+    It is a static module. that means there can only be 1 server at the project.
+    it contains list of registered client. and auxiliary modules such as:
+
+    # ServerNetworkManager - which is responsible for networking with the clients
+    # MassagesManager      - which is responsible for saving and releasing clients messages
+
+    ----------------------------------------------------------------------
+"""
+
 class Server():
 
+    """
+    ----------------------------------------------------------------------
+    Init server 
+    ----------------------------------------------------------------------
+    """
     def _init_server():
         Server._clients = []
         Server._general_error_response = Response(SERVER_VERSION, SERVER_ERROR_CODE, 0, b'')
         Server._messages_manager = MessagesManager()
 
+
+    """
+    ----------------------------------------------------------------------
+    Start server listening on given port 
+    ----------------------------------------------------------------------
+    """
     def start_server(port_num):
         Server._init_server();
         ServerNetworkManager.start(port_num)
 
+
+    """
+    ----------------------------------------------------------------------
+    Generic function that is called from ServerNetworkManager each time 
+    a request is received.it uses a dict to find Server's matching handler function
+    using the request code given
+    ----------------------------------------------------------------------
+    """
     def handle_request(request):
 
         try:
-            # Invoke matching handler function by using request code
+            """Invoke matching handler function by using request code.
+               find that function in handler function dict"""
             handler_function = REQUEST_HANDLERS[request.code]
             return handler_function(request)
 
@@ -63,12 +95,14 @@ class Server():
             print("Server Error!!" + str(ex))
 
         except Exception as ex:
-            # TODO - Handle errors!!!! 
             print("General Error:" + str(ex))
 
 
-
-
+    """
+    ----------------------------------------------------------------------
+    Auxiliary functiom to Regiser new client using name and public key
+    ----------------------------------------------------------------------
+    """
     def _register_new_client(name, public_key):
 
         # slice name until null char
@@ -87,40 +121,11 @@ class Server():
         return new_client
 
 
-
-    # -------------------------- Request Handler functions --------------------------
-
-    def _request_register(request):
-        print("REGISTER REQUEST!");
-
-        client_data = struct.unpack(REQUEST_REGISTER_PAYLOAD_FORMAT, request.payload)
-
-        try:
-
-            # Register new client and return maching response 
-            new_client = Server._register_new_client(*client_data)
-
-            Server.print_clients()
-
-            response = Response(SERVER_VERSION, RESPONSE_CODE_REGISTER, CLIENT_ID_SIZE, new_client.get_id().bytes)
-            print(str(response))
-
-            Server.print_clients()
-            return response
-
-
-        except ServerException as ex:
-            # TODO - Handle errors correctly (?) !!!!!!!!!!
-            print(str(ex))
-            return Server._general_error_response 
-
-
-    def print_clients():
-        for c in Server._clients:
-            print (str(c))
-
-
-
+    """
+    ----------------------------------------------------------------------
+    Auxiliary function to find client using it's id 
+    ----------------------------------------------------------------------
+    """
     def _find_client_by_id(clients_list, client_id):
 
         for client in clients_list:
@@ -130,7 +135,40 @@ class Server():
         return None
 
 
+    #################################################################################
+    #
+    #                       Requests Handler functions 
+    #
+    ##################################################################################
 
+
+    """
+    ----------------------------------------------------------------------
+    Request: Register
+    ----------------------------------------------------------------------
+    """
+    def _request_register(request):
+
+        client_data = struct.unpack(REQUEST_REGISTER_PAYLOAD_FORMAT, request.payload)
+
+        try:
+
+            # Register new client and return maching response 
+            new_client = Server._register_new_client(*client_data)
+            response = Response(SERVER_VERSION, RESPONSE_CODE_REGISTER, CLIENT_ID_SIZE, new_client.get_id().bytes)
+            return response
+
+        except ServerException as ex:
+            print("ERROR:" + str(ex))
+            return Server._general_error_response 
+
+
+
+    """
+    ----------------------------------------------------------------------
+    Request: Get clients list 
+    ----------------------------------------------------------------------
+    """
     def _request_get_clients_list(request):
 
         other_clients = Server._clients[:]
@@ -156,22 +194,28 @@ class Server():
 
 
 
+    """
+    ----------------------------------------------------------------------
+    Request: Get client public key
+    ----------------------------------------------------------------------
+    """
     def _request_get_client_public_key(request):
 
         # find client requsted public key
         requested_client_id = uuid.UUID(bytes=request.payload)
         client = Server._find_client_by_id(Server._clients, requested_client_id)
 
-        print("Found client matching this ID ===> " + str(client))
-
         response_payload = struct.pack(RESPONSE_CLIENT_PUBLIC_KEY_FORMAT, client.get_id().bytes, client.get_public_key())
         response = Response(SERVER_VERSION, RESPONSE_CODE_GET_CLIENT_PUBLIC_KEY, len(response_payload) , response_payload)
-
-        print("RESPONSE===>" + str(response))
-
         return response
 
 
+
+    """
+    ----------------------------------------------------------------------
+    Request: Send message to client 
+    ----------------------------------------------------------------------
+    """
     def _request_send_message(request):
 
         content = ''
@@ -179,31 +223,27 @@ class Server():
         (dest_client_id, msg_type, content_size) = struct.unpack(REQUEST_SEND_MESSAGE_HEADERS_FORMAT, \
          request.payload[:CLIENT_MESSAGE_HEADERS_SIZE]) 
 
-        #print (f"DEST ID= {dest_client_id}  | TYPE= {msg_type} | SIZE= {content_size}")
-
         if content_size > 0:
             content = request.payload[CLIENT_MESSAGE_HEADERS_SIZE:]
 
-        #print("Content===> " + content)
-
         dest_client = Server._find_client_by_id(Server._clients, uuid.UUID(bytes=dest_client_id))
-
         if not dest_client:
             return Server._general_error_response
 
         message_id = Server._messages_manager.add_message(request.client_id, dest_client, \
          msg_type, content)
 
-        # TODO - REMOVE !! DEBUG !
-        Server._messages_manager.debug_print()
-
-        # build respone
+        # Build and return respone
         response_payload = struct.pack(RESPONSE_MESSAGE_SENT_FORMAT, dest_client_id, message_id)        
         response = Response(SERVER_VERSION, RESPONSE_CODE_SEND_MESSAGE, len(response_payload) , response_payload)
-        
         return response
         
 
+    """
+    ----------------------------------------------------------------------
+    Request: Get pending messages 
+    ----------------------------------------------------------------------
+    """
     def _request_get_pending_messages(request):
         
         # find client's pending messages
@@ -219,13 +259,8 @@ class Server():
 
         # Release all messages of that client. and send back them as a response 
         Server._messages_manager.release_pending_messages(client)
-
-        Server._messages_manager.debug_print()
-
         response = Response(SERVER_VERSION, RESPONSE_CODE_GET_PENDING_MESSAGES, len(response_payload) , response_payload)
         return response
-
-
 
 
 

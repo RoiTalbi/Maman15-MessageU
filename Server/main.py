@@ -23,7 +23,7 @@ def main():
 
     port_num = 0
 
-    # Open port info file 
+    # Read port number from congig file and start sever on that port
     try:
         config_file = open(PORT_INFO_FILE_PATH, 'r')
         port_str = config_file.readline()
@@ -35,6 +35,9 @@ def main():
 
 
     Server.start_server(port_num)
+
+
+
 
 
 

@@ -13,7 +13,6 @@ class ServerException(Exception):
 	pass
 
 
-
 class ClientExsistsException(ServerException):
 	pass
 

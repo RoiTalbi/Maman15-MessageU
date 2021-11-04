@@ -14,10 +14,13 @@ from errors import *
 CLIENT_NAME_MAX_SIZE = 255
 
 
-# ----------------------------------------------------------------
-# Classes
-# ----------------------------------------------------------------
 
+
+"""
+----------------------------------------------------------------------
+Client class holds relevent data for each client
+----------------------------------------------------------------------
+"""
 class Client():
 
     def __init__(self, id, name, public_key, last_seen):
@@ -47,7 +50,6 @@ class Client():
     def get_public_key(self):
         return self._public_key
 
-    #TODO - REMOVE !!!!!!!!!!!!!!!
     def __str__(self):
         return f" ID= {self._id} | Name= {self._name}| \n\n";
 

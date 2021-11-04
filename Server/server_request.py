@@ -12,14 +12,12 @@ import uuid
 REQUEST_STRUCT_FORMAT = '<16sBHI'
 REQUEST_HEADERS_SIZE = 23
 
-# ----------------------------------------------------------------
-# Classes
-# ----------------------------------------------------------------
-
 
 
 """
-A simple Stracture to hold request data
+----------------------------------------------------------------------
+A simple Stracture to hold server request data
+----------------------------------------------------------------------
 """
 class Request():
 
