@@ -16,7 +16,7 @@ class Logger
 public:
 	static void LOG_INFO(const std::string& message, const std::string& details = "")
 	{
-		std::cout << message << ".  " << details << std::endl;
+		std::cout << message << " - " << details << std::endl;
 	}
 
 	static void LOG_WARNING(const std::string& message, const std::string& details = "")

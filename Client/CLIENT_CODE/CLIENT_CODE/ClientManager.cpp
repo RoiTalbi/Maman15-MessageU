@@ -111,6 +111,10 @@ ClientManager::~ClientManager()
 
 void ClientManager::_run_console_menu()
 {
+	/* 
+	Create a map of action codes and handler functions. 
+	give that map to ClientMenu to be run.
+	*/
 	std::map <MenuAction, std::function<void()>> action_handler_map =
 	{
 		{ACTION_REGISTER, std::bind(&ClientManager::_request_register, this)},
@@ -136,6 +140,7 @@ void ClientManager::_request_register()
 		throw ClientError("Client already registered");
 	}
 
+	// get user name, generate keys for that user and register him on the server
 	string user_name = _menu.get_user_input("Enter User Name");
 	Logger::LOG_INFO("Registering client");
 
@@ -159,8 +164,10 @@ void ClientManager::_request_register()
 
 void ClientManager::_get_clients_list()
 {
+	// use network manager to receive updated clients list
 	_network_manager.send_request_get_clients_list(_other_clients);
 
+	// print clients to user
 	cout << "------- Clients list -------" << endl;
 	for (auto client : _other_clients)
 	{
@@ -185,6 +192,7 @@ void ClientManager::_get_client_public_key()
 		throw ClientError("Client information hasn't been received from server");
 	}
 
+	// ask the server for this client's public key
 	_network_manager.send_request_get_client_public_key(requested_client->get_client_id(), requested_client);
 	Logger::LOG_INFO("Public key received successfully");
 }
@@ -215,7 +223,7 @@ void ClientManager::_send_message_with_content()
 	string cipher_content = aes.encrypt(content.c_str(), content.length());
 	message_id = _network_manager.send_message_to_client(requested_client->get_client_id(), MessageType::REGULAR_MESSAGE, cipher_content);
 
-	Logger::LOG_INFO("Message sent successfully", "Message ID= " + message_id);
+	Logger::LOG_INFO("Message sent successfully", "Message ID= " + std::to_string(message_id));
 }
 
 /***********************************************************************************************************/

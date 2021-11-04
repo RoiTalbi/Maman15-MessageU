@@ -1,4 +1,3 @@
-
 # ----------------------------------------------------------------
 # Message Type
 # ----------------------------------------------------------------
@@ -6,7 +5,6 @@
 MESSAGE_TYPE_GET_SYMMETRIC_KEY = 1,
 MESSAGE_TYPE_SEND_SYMMETRIC_KEY = 2,
 MESSAGE_TYPE_REGULAR_MESSAGE = 3	
-
 
 
 """

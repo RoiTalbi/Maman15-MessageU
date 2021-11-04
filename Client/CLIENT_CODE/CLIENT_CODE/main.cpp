@@ -14,11 +14,6 @@
 
 
 
-
-using namespace std;
-
-
-
 int main()
 {
 	ClientManager client;

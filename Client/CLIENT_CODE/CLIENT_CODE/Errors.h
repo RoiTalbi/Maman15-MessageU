@@ -7,12 +7,9 @@
 
 
 
-
-
 /* Error Codes */
 #define CLIENT_GENERAL_ERROR_EXIT_CODE		(1)
 #define CLIENT_NETWORK_ERROR_EXIT_CODE		(2)
-
 
 
 

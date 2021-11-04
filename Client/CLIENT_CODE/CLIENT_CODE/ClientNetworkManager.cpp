@@ -30,11 +30,9 @@ void ClientNetworkManager::send_request_register(const std::string& name,
 	/* Assemble request for client register . send it and get response */
 	ServerRequest request(REQUEST_CODE_REGISTER, sizeof(RequestRegister), temp_client_id);
 	RequestRegister register_request_payload(name.c_str(), (uint8_t*)public_key.c_str());
-
 	request.payload = (uint8_t*)(&register_request_payload);
 
 	_process_request_and_response(&request, &response);
-
 
 	/* Return received client_ID from server or throw error if occurred */
 	if (response.code == SERVER_ERROR_CODE)

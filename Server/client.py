@@ -14,8 +14,6 @@ from errors import *
 CLIENT_NAME_MAX_SIZE = 255
 
 
-
-
 """
 ----------------------------------------------------------------------
 Client class holds relevent data for each client
